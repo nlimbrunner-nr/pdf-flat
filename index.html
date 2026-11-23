@@ -19,7 +19,13 @@
   }
   main { max-width: 760px; margin: 0 auto; padding: 48px 20px; }
   h1 { margin: 0 0 4px; font-size: 26px; }
-  .sub { margin: 0 0 28px; color: var(--muted); }
+  .sub { margin: 0 0 18px; color: var(--muted); }
+  .privacy {
+    display: flex; gap: 12px; align-items: flex-start; margin: 0 0 24px; padding: 14px 16px;
+    border: 1px solid var(--accent); border-radius: 10px; background: color-mix(in srgb, var(--accent) 10%, var(--card));
+  }
+  .privacy svg { flex-shrink: 0; color: var(--accent); margin-top: 1px; }
+  .privacy strong { display: block; }
   #drop {
     display: block; border: 2px dashed var(--line); border-radius: 12px; background: var(--card);
     padding: 44px 20px; text-align: center; cursor: pointer; transition: border-color .15s, background .15s;
@@ -51,7 +57,18 @@
 <main>
   <h1>PDF Flattener</h1>
   <p class="sub">Turns every page into an image and rebuilds the PDF. Form fields, text layers and
-    DocuSign boxes become part of a flat picture. Files never leave your computer.</p>
+    DocuSign boxes become part of a flat picture.</p>
+
+  <div class="privacy">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path fill="currentColor" d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V11a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 1 1 6 0v3H9Z"/>
+    </svg>
+    <div>
+      <strong>Your files never leave your computer.</strong>
+      Everything happens locally in your browser. Nothing is uploaded, stored or sent anywhere,
+      so it's safe to use for contracts and other confidential documents.
+    </div>
+  </div>
 
   <label id="drop" for="file">
     <strong>Drop PDFs here</strong>
