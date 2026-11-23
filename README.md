@@ -8,8 +8,8 @@ tools like Adobe Sign have nothing left to misread.
 
 ## 🔒 Your files never leave your computer
 
-Everything happens locally in your browser. Nothing is uploaded, stored or sent anywhere, so it's
-safe to use for contracts and other confidential documents. There is no server behind this tool:
+Everything happens locally in your browser. Nothing is uploaded, stored or sent anywhere.
+There is no server behind this tool:
 GitHub Pages only delivers the page itself, and the PDF libraries
 ([pdf.js](https://mozilla.github.io/pdf.js/) and [pdf-lib](https://pdf-lib.js.org/)) are loaded
 as code from jsDelivr. Your document is never part of any request.
