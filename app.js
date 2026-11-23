@@ -1,13 +1,13 @@
-import * as pdfjsLib from "./vendor/pdf.min.mjs";
+import * as pdfjsLib from "./vendor/pdf.mjs";
+import { buildPdf } from "./pdf-writer.js";
 
 // Start the worker from a blob URL: blob workers inherit this page's Content-Security-Policy,
 // while a worker loaded directly from a file would get none on GitHub Pages.
-const workerUrl = new URL("vendor/pdf.worker.min.mjs", import.meta.url).href;
+const workerUrl = new URL("vendor/pdf.worker.mjs", import.meta.url).href;
 pdfjsLib.GlobalWorkerOptions.workerPort = new Worker(
   URL.createObjectURL(new Blob([`import "${workerUrl}";`], { type: "text/javascript" })),
   { type: "module" });
 
-const { PDFDocument } = window.PDFLib;
 const drop = document.getElementById("drop");
 const input = document.getElementById("file");
 const jobs = document.getElementById("jobs");
@@ -53,17 +53,42 @@ function createJobUI(name) {
   };
 }
 
-function canvasToBytes(canvas, type, quality) {
+function canvasToBlob(canvas, type, quality) {
   return new Promise((resolve, reject) => canvas.toBlob(
-    blob => blob ? blob.arrayBuffer().then(b => resolve(new Uint8Array(b)), reject)
-                 : reject(new Error("Page too large to render at this resolution")),
+    blob => blob ? resolve(blob) : reject(new Error("Page too large to render at this resolution")),
     type, quality));
+}
+
+// Turns the rendered page into image data for pdf-writer.js.
+async function encodePage(canvas, fmt) {
+  const { width, height } = canvas;
+  if (fmt === "jpeg") {
+    const blob = await canvasToBlob(canvas, "image/jpeg", 0.92);
+    return { kind: "jpeg", width, height, bytes: new Uint8Array(await blob.arrayBuffer()) };
+  }
+  // Lossless: drop the alpha channel and zlib-compress the RGB pixels with the browser's own
+  // CompressionStream ("deflate" is zlib format, which is what PDF's FlateDecode expects).
+  const rgba = canvas.getContext("2d").getImageData(0, 0, width, height).data;
+  const rgb = new Uint8Array(width * height * 3);
+  for (let i = 0, j = 0; i < rgba.length; i += 4, j += 3) {
+    rgb[j] = rgba[i]; rgb[j + 1] = rgba[i + 1]; rgb[j + 2] = rgba[i + 2];
+  }
+  const zipped = new Blob([rgb]).stream().pipeThrough(new CompressionStream("deflate"));
+  return { kind: "flate", width, height, bytes: new Uint8Array(await new Response(zipped).arrayBuffer()) };
+}
+
+// Small preview image, so the full-size page doesn't have to be kept around.
+function thumbnail(canvas) {
+  const t = document.createElement("canvas");
+  t.height = 240;
+  t.width = Math.round(canvas.width * t.height / canvas.height);
+  t.getContext("2d").drawImage(canvas, 0, 0, t.width, t.height);
+  return canvasToBlob(t, "image/jpeg", 0.8);
 }
 
 async function flatten(file, ui) {
   const dpi = Number(document.getElementById("dpi").value);
   const fmt = document.getElementById("fmt").value;
-  const mime = fmt === "png" ? "image/png" : "image/jpeg";
   let src;
   try {
     ui.status.textContent = "Opening…";
@@ -71,7 +96,7 @@ async function flatten(file, ui) {
       data: await file.arrayBuffer(),
       isEvalSupported: false,                                // no eval() on untrusted PDFs
     }).promise;
-    const out = await PDFDocument.create();
+    const pages = [];
     ui.bar.max = src.numPages;
 
     for (let i = 1; i <= src.numPages; i++) {
@@ -93,13 +118,10 @@ async function flatten(file, ui) {
         annotationMode: pdfjsLib.AnnotationMode.ENABLE_STORAGE,
       }).promise;
 
-      const bytes = await canvasToBytes(canvas, mime, 0.92);
-      const img = fmt === "png" ? await out.embedPng(bytes) : await out.embedJpg(bytes);
-      out.addPage([size.width, size.height])
-         .drawImage(img, { x: 0, y: 0, width: size.width, height: size.height });
+      pages.push({ width: size.width, height: size.height, image: await encodePage(canvas, fmt) });
 
       const thumb = document.createElement("img");
-      thumb.src = URL.createObjectURL(new Blob([bytes], { type: mime }));
+      thumb.src = URL.createObjectURL(await thumbnail(canvas));
       thumb.alt = `Page ${i}`;
       ui.thumbs.append(thumb);
 
@@ -109,14 +131,14 @@ async function flatten(file, ui) {
     }
 
     ui.status.textContent = "Saving…";
-    const pdfBytes = await out.save();
-    const url = URL.createObjectURL(new Blob([pdfBytes], { type: "application/pdf" }));
+    const pdf = buildPdf(pages);
+    const url = URL.createObjectURL(pdf);
     const outName = file.name.replace(/\.pdf$/i, "") + " (flattened).pdf";
     const a = document.createElement("a");
     a.className = "dl"; a.href = url; a.download = outName; a.textContent = "Download";
     ui.head.append(a);
     ui.status.textContent =
-      `${src.numPages} page${src.numPages > 1 ? "s" : ""} · ${(pdfBytes.length / 1024 / 1024).toFixed(2)} MB`;
+      `${src.numPages} page${src.numPages > 1 ? "s" : ""} · ${(pdf.size / 1024 / 1024).toFixed(2)} MB`;
     ui.bar.remove();
   } catch (err) {
     ui.status.classList.add("err");

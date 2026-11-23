@@ -12,9 +12,10 @@ tools like Adobe Sign have nothing left to misread.
 
 Everything happens locally in your browser. Nothing is uploaded, stored or sent anywhere.
 
-- **Only local dependencies.** The PDF libraries ([pdf.js](https://mozilla.github.io/pdf.js/)
-  4.10.38 and [pdf-lib](https://pdf-lib.js.org/) 1.17.1) are stored in this repo under `vendor/`.
-  Nothing is fetched from a CDN.
+- **One dependency, stored locally.** The only library is Mozilla's
+  [pdf.js](https://mozilla.github.io/pdf.js/) 4.10.38, which draws the pages. It's in `vendor/`,
+  byte-identical to Mozilla's official GitHub release, unminified so it can be reviewed. The PDF
+  output is written by our own short `pdf-writer.js`. Nothing is fetched from a CDN.
 - **All outgoing connections are blocked.** The page's Content Security Policy forbids any network
   connection (`connect-src 'none'`), including from the PDF rendering worker, and only code from
   this site may run.
