@@ -45,4 +45,6 @@ a.dl {
   font-weight: 600; padding: 8px 14px; border-radius: 8px;
 }
 .note { margin-top: 36px; font-size: 13px; color: var(--muted); }
-.note p { margin: 6px 0; }
+.note h2 { margin: 0 0 6px; font-size: 14px; color: var(--text); }
+.note ul { margin: 0; padding-left: 18px; }
+.note li { margin: 4px 0; }
