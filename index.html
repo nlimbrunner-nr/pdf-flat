@@ -18,7 +18,7 @@
   <p class="sub">Turns every page into an image and rebuilds the PDF. Form fields, text layers and
     DocuSign boxes become part of a flat picture.</p>
 
-  <div class="privacy">
+  <div class="callout ok">
     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
       <path fill="currentColor" d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V11a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 1 1 6 0v3H9Z"/>
     </svg>
@@ -28,6 +28,22 @@
       <ul>
         <li>Only local dependencies: nothing is fetched from a CDN.</li>
         <li>All outgoing connections are blocked by default.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path fill="currentColor" d="M12 2 1 21h22L12 2Zm1 15h-2v2h2v-2Zm0-7h-2v5h2v-5Z"/>
+    </svg>
+    <div>
+      <strong>Caveats</strong>
+      <ul>
+        <li>A flattened copy shows a picture of a signature but can't be verified as electronically
+          signed. Keep the original.</li>
+        <li>Text can't be selected or searched afterwards. Place signature fields by hand in your
+          signing tool.</li>
+        <li>Password-protected PDFs need the password removed first.</li>
       </ul>
     </div>
   </div>
@@ -55,17 +71,6 @@
   </div>
 
   <div id="jobs"></div>
-
-  <div class="note">
-    <h2>Caveats</h2>
-    <ul>
-      <li>A flattened copy shows a picture of a signature but can't be verified as electronically
-        signed. Keep the original.</li>
-      <li>Text can't be selected or searched afterwards. Place signature fields by hand in your
-        signing tool.</li>
-      <li>Password-protected PDFs need the password removed first.</li>
-    </ul>
-  </div>
 </main>
 
 <script src="vendor/pdf-lib.min.js"></script>
