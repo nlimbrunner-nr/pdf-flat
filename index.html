@@ -6,9 +6,9 @@
 <!-- Only same-origin code may run, and the page may not open any network connection,
      so a document can't be sent anywhere even if a library were compromised. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self';
-  worker-src 'self' blob:; style-src 'self'; img-src blob: data:; connect-src 'none'; font-src 'none';
+  worker-src 'self' blob:; style-src 'self'; img-src 'self' blob:; connect-src 'none'; font-src 'none';
   media-src 'none'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'">
-<link rel="icon" href="data:,">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <title>PDF Flattener</title>
 <link rel="stylesheet" href="style.css">
 </head>
